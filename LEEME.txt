@@ -1,0 +1,7 @@
+MI TV - Etapa 1
+================
+Opcion A (Android Studio): File > Open > carpeta MiTV > esperar sincronizacion >
+  Build > Build Bundle(s)/APK(s) > Build APK(s) > "locate".
+Opcion B (sin instalar nada): subir esta carpeta a un repositorio de GitHub,
+  pestana Actions > "Build APK" > Run workflow > descargar "MiTV-apk".
+Lista por defecto: editar app/src/main/res/values/strings.xml (default_playlist_url).
