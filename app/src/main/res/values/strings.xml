@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mi TV</string>
+    <!-- Pon aquí la dirección de tu lista M3U para que se cargue sola la primera vez -->
+    <string name="default_playlist_url"></string>
+</resources>
