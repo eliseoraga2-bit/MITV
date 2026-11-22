@@ -11,8 +11,17 @@ android {
         applicationId = "com.tvbox.iptv"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
+    }
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("mitv.keystore")
+            storeType = "pkcs12"
+            storePassword = "mitv123"
+            keyAlias = "mitv"
+            keyPassword = "mitv123"
+        }
     }
     buildTypes {
         release { isMinifyEnabled = false }

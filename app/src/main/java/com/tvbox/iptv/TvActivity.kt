@@ -45,12 +45,16 @@ class TvActivity : AppCompatActivity() {
     private var fullscreen = false
     private var retriedHls = false
     private var player: ExoPlayer? = null
+    private var sourceId = ""
+    private var groupFirst = false
     private val hideBanner = Runnable { banner.visibility = View.GONE }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_tv)
+        sourceId = intent.getStringExtra("source_id") ?: ""
+        groupFirst = intent.getBooleanExtra("group_first", false)
         hideSystemUi()
 
         sidebar = findViewById(R.id.sidebar)
@@ -87,7 +91,7 @@ class TvActivity : AppCompatActivity() {
     private fun loadChannels() {
         lifecycleScope.launch {
             val channels = withContext(Dispatchers.Default) {
-                runCatching { M3uParser.parse(File(filesDir, "playlist.m3u").readText()) }
+                runCatching { M3uParser.parse(Prefs.listFile(this@TvActivity, sourceId).readText(), groupFirst) }
                     .getOrDefault(emptyList())
             }
             if (channels.isEmpty()) {
@@ -99,7 +103,7 @@ class TvActivity : AppCompatActivity() {
             countries = byCountry.keys.sortedWith(
                 compareBy<String>({ when (it) { "México" -> 0; "Otros" -> 2; else -> 1 } }, { it })
             )
-            val lastUrl = Prefs.lastUrl(this@TvActivity)
+            val lastUrl = Prefs.lastUrl(this@TvActivity, sourceId)
             val start = channels.firstOrNull { it.url == lastUrl }
                 ?: byCountry.getValue(countries[0]).first()
             current = start
@@ -125,7 +129,7 @@ class TvActivity : AppCompatActivity() {
     private fun showCountryDialog() {
         if (countries.isEmpty()) return
         AlertDialog.Builder(this)
-            .setTitle("Elige un país")
+            .setTitle("Elige una opción")
             .setItems(countries.toTypedArray()) { _, i -> selectCountry(i) }
             .show()
     }
@@ -188,7 +192,7 @@ class TvActivity : AppCompatActivity() {
     private fun play(ch: Channel) {
         current = ch
         retriedHls = false
-        Prefs.saveLast(this, ch.url)
+        Prefs.saveLast(this, sourceId, ch.url)
         adapter.setPlaying(ch.url)
         message.visibility = View.GONE
         showBanner(ch.name)

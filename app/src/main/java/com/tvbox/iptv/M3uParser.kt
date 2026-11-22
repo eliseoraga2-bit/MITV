@@ -14,7 +14,7 @@ object M3uParser {
         "UK" to "Reino Unido", "CA" to "Canadá"
     )
 
-    fun parse(text: String): List<Channel> {
+    fun parse(text: String, groupFirst: Boolean = false): List<Channel> {
         val out = ArrayList<Channel>()
         var info: String? = null
         for (raw in text.lineSequence()) {
@@ -36,7 +36,7 @@ object M3uParser {
                             name = name,
                             url = line,
                             logo = attrs["tvg-logo"]?.takeIf { it.startsWith("http") },
-                            country = countryOf(attrs),
+                            country = countryOf(attrs, groupFirst),
                             tvgId = attrs["tvg-id"]
                         )
                         info = null
@@ -50,7 +50,10 @@ object M3uParser {
     private fun normalize(s: String): String =
         if (s.length == 2) countryNames[s.uppercase()] ?: s.uppercase() else s
 
-    private fun countryOf(a: Map<String, String>): String {
+    private fun countryOf(a: Map<String, String>, groupFirst: Boolean): String {
+        if (groupFirst) {
+            a["group-title"]?.trim()?.takeIf { it.isNotEmpty() }?.let { return it }
+        }
         a["tvg-country"]?.split(';', ',')?.firstOrNull()?.trim()
             ?.takeIf { it.isNotEmpty() }?.let { return normalize(it) }
 
